@@ -4,12 +4,23 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "cross-env DEBUG=app:* mocha",
+    "test": "cross-env DEBUG=app:* nyc --reporter=text-lcov mocha | coveralls",
     "test:watch": "cross-env DEBUG=app:* mocha -w",
     "start": "cross-env DEBUG=app:* node server.js"
   },
   "engines": {
     "node": "^8.4.0"
+  },
+  "config": {
+    "blanket": {
+      "pattern": [
+        ""
+      ],
+      "data-cover-never": [
+        "node_modules",
+        "tests"
+      ]
+    }
   },
   "keywords": [],
   "author": "",
@@ -33,7 +44,9 @@
   "devDependencies": {
     "aws-sdk-mock": "^1.7.0",
     "chai": "^4.1.2",
+    "coveralls": "^2.13.1",
     "mocha": "^3.5.0",
+    "nyc": "^11.2.1",
     "supertest": "^3.0.0"
   }
 }
