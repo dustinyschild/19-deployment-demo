@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "cross-env DEBUG=app:* nyc --reporter=text-lcov mocha | coveralls",
+    "test": "cross-env DEBUG=app:* nyc --reporter=lcov --reporter=text-lcov mocha",
     "test:watch": "cross-env DEBUG=app:* mocha -w",
     "start": "cross-env DEBUG=app:* node server.js"
   },
