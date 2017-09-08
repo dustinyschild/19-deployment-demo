@@ -38,6 +38,10 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
   if (!req.file.path) {
     return next(createError(500, 'file not saved'));
   }
+  res.on('finish', () => {
+      debug(`Deleting ${req.file.path}`);
+      del([req.file.path]);
+  });
 
   req.file.ext = path.extname(req.file.originalname);
   debug('file', req.file);
@@ -58,7 +62,6 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
     })
     .then(s3data => {
       debug('s3data', s3data);
-      del([req.file.path]);
       return new Pic({
         ...req.body,
         objectKey: s3data.Key,
