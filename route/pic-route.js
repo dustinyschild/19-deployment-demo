@@ -44,11 +44,13 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
   });
 
   req.file.ext = path.extname(req.file.originalname);
+  debug(req.file);
 
   let s3options = {
     ACL: 'public-read',
     Bucket: process.env.AWS_BUCKET,
     Key: `${req.file.filename}-${req.file.originalname}`,
+    ContentType: req.file.mimetype,
     Body: fs.createReadStream(req.file.path),
   };
 
@@ -60,6 +62,7 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
       return s3uploadAsync(s3options);
     })
     .then(s3data => {
+      debug(s3data);
       return new Pic({
         ...req.body,
         objectKey: s3data.Key,
