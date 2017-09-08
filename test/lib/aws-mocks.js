@@ -1,14 +1,14 @@
 'use strict';
 
+const debug = require('debug')('app:test/aws-mocks');
+module.exports = exports = {};
+
 if (process.env.AWS_ACCESS_KEY_ID) {
-  module.exports = {};
+  debug(process.env.AWS_ACCESS_KEY_ID);
   return;
 }
 
 const AWS = require('aws-sdk-mock');
-const debug = require('debug')('app:test/aws-mocks');
-
-module.exports = exports = {};
 
 const mock = exports.uploadMock = {
   ETag: '"deadbeef"',
