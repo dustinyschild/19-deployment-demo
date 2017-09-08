@@ -4,7 +4,7 @@ const debug = require('debug')('app:test/aws-mocks');
 module.exports = exports = {};
 
 if (process.env.AWS_ACCESS_KEY_ID) {
-  debug(process.env.AWS_ACCESS_KEY_ID);
+  debug('AWS_ACCESS_KEY_ID', process.env.AWS_ACCESS_KEY_ID);
   return;
 }
 

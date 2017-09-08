@@ -18,8 +18,9 @@ const del = require('del');
 const AWS = require('aws-sdk');
 
 AWS.config.setPromisesDependency(Promise);
-const s3 = new AWS.S3();
+
 const s3uploadAsync = (options) => {
+  const s3 = new AWS.S3();
   return new Promise((resolve, reject) => {
     s3.upload(options, (err, data) => {
       if (err) return reject(err);
@@ -51,7 +52,7 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
   Gallery.findById(req.params.id)
     .then(gallery => {
       if (!gallery)
-        return next(createError(404, 'gallery not found'));
+        return Promise.reject(createError(404, 'gallery not found'));
 
       return s3uploadAsync(s3options);
     })
