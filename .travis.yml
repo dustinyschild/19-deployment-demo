@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - stable
+services:
+  - mongodb
+env:
+  - MONGODB_URI=mongodb://localhost/test APP_SECRET=DeltaV
+before_script: npm install
+script:
+  - npm test
