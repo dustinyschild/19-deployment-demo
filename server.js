@@ -15,6 +15,7 @@ app.use(morgan('dev'));
 app.use(cors());
 
 // Public routes here
+app.get('/', (req, res) => res.sendStatus(200));
 
 // Authorize
 app.use(require('./route/auth'));
