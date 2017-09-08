@@ -16,10 +16,8 @@ const mock = exports.uploadMock = {
   Key: '1234.png',
   Bucket: process.env.AWS_BUCKET,
 };
-debug('uploadMock', mock);
 
 AWS.mock('S3', 'upload', function (params, callback) {
-  debug(params);
   if (params.ACL !== 'public-read') {
     return callback(new Error('ACL must be public-read'));
   }
