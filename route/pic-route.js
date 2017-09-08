@@ -44,7 +44,6 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
   });
 
   req.file.ext = path.extname(req.file.originalname);
-  debug('file', req.file);
 
   let s3options = {
     ACL: 'public-read',
@@ -61,7 +60,6 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
       return s3uploadAsync(s3options);
     })
     .then(s3data => {
-      debug('s3data', s3data);
       return new Pic({
         ...req.body,
         objectKey: s3data.Key,
