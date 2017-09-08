@@ -52,6 +52,13 @@ describe('Auth Routes', function () {
             expect(res.text.substring(0, 36)).to.equal('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
           });
       });
+
+      it('should reject duplicate with 409', function () {
+        return request
+          .post('/api/signup')
+          .send(exampleUser)
+          .expect(409)
+      });
     });
 
     describe('without body', function () {
