@@ -44,6 +44,28 @@ describe('Gallery Routes', function () {
           expect(res.body.created).to.not.be.undefined;
         });
     });
+    it('should return 400 given bad JASON', function () {
+      return request
+        .post('/api/gallery')
+        .set({ Authorization: `Bearer ${this.testToken}` })
+        .set('Content-Type', 'application/json')
+        .send('["bad jason!"]x')
+        .expect(400);
+    });
+    it('should return 400 given JASON without desc', function () {
+      return request
+        .post('/api/gallery')
+        .set({ Authorization: `Bearer ${this.testToken}` })
+        .send({ name: 'whatever' })
+        .expect(400);
+    });
+    it('should return 400 given JASON without name', function () {
+      return request
+        .post('/api/gallery')
+        .set({ Authorization: `Bearer ${this.testToken}` })
+        .send({ desc: 'whatever' })
+        .expect(400);
+    });
   });
 
   describe('GET /api/gallery/:id', function () {

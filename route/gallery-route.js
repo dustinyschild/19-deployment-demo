@@ -11,6 +11,7 @@ const router = module.exports = new Router();
 
 router.post('/api/gallery', jsonParser, (req, res, next) => {
   debug('POST /api/gallery');
+  debug('Content-Type', req.headers['content-type']);
 
   new Gallery({
     ...req.body,
