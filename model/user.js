@@ -76,13 +76,13 @@ userSchema.methods.generateToken = function () {
   });
 };
 
-const User = module.exports = mongoose.models.user || mongoose.model('user', userSchema);
-
-User.createUser = function(body) {
+userSchema.statics.createUser = function(body) {
   debug('createUser', body);
 
   const { password, ..._user } = body;
-  return new User(_user)
+  return new this(_user)
     .generatePasswordHash(password)
     .then(user => user.save());
 }
+
+module.exports = mongoose.models.user || mongoose.model('user', userSchema);
