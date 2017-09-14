@@ -14,20 +14,16 @@ const example = require('./lib/examples');
 const { user: exampleUser, gallery: exampleGallery } = example;
 
 describe('Gallery Routes', function () {
-  beforeEach(function () {
-    return User.createUser(exampleUser)
-      .then(user => this.testUser = user)
-      .then(user => user.generateToken())
-      .then(token => this.testToken = token);
+  beforeEach(async function () {
+    this.testUser = await User.createUser(exampleUser);
+    this.testToken = await this.testUser.generateToken();
   });
-  afterEach(function () {
+  afterEach(async function () {
     delete this.testUser;
     delete this.testToken;
 
-    return Promise.all([
-      User.remove({}),
-      Gallery.remove({}),
-    ]);
+    await User.remove({});
+    await Gallery.remove({});
   });
   describe('POST /api/gallery', function () {
     it('should return a gallery', function () {
@@ -86,13 +82,12 @@ describe('Gallery Routes', function () {
       });
     });
     describe('valid id', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
         // NO: exampleGallery.userID = this.testUser._id.toString();
-        return new Gallery({
+        this.testGallery = await new Gallery({
           ...exampleGallery,
           userID: this.testUser._id.toString(),
-        }).save()
-          .then(gallery => this.testGallery = gallery);
+        }).save();
       });
       it('should return a gallery', function () {
         return request
@@ -106,11 +101,9 @@ describe('Gallery Routes', function () {
           });
       });
       describe(`someone else's gallery`, function () {
-        beforeEach(function () {
-          return User.createUser({ username: 'imposter', email: 'imposter@example.com', password: 'hack' })
-            .then(hacker => this.hacker = hacker)
-            .then(hacker => hacker.generateToken())
-            .then(hackerToken => this.hackerToken = hackerToken);
+        beforeEach(async function () {
+          this.hacker = await User.createUser({ username: 'imposter', email: 'imposter@example.com', password: 'hack' });
+          this.hackerToken = await this.hacker.generateToken();
         })
         it('should return 404', function () {
           return request
@@ -142,25 +135,21 @@ describe('Gallery Routes', function () {
       });
     });
     describe('valid id', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
         // NO: exampleGallery.userID = this.testUser._id.toString();
-        return new Gallery({
+        this.testGallery = await new Gallery({
           ...exampleGallery,
           userID: this.testUser._id.toString(),
-        }).save()
-          .then(gallery => this.testGallery = gallery);
+        }).save();
       });
-      it('should return a gallery', function () {
-        return request
+      it('should return a gallery', async function () {
+        await request
           .delete(`/api/gallery/${this.testGallery._id}`)
           .set({ 'Authorization': `Bearer ${this.testToken}` })
-          .expect(204)
-          .expect(() => {
-            return Gallery.findById(this.testGallery._id)
-              .then(deleted => {
-                expect(deleted).to.be.null
-              });
-          });
+          .expect(204);
+
+        var deleted = await Gallery.findById(this.testGallery._id);
+        expect(deleted).to.be.null;
       });
       describe(`someone else's gallery`, function () {
         beforeEach(function () {
