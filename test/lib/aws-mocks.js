@@ -1,15 +1,30 @@
 'use strict';
 
 const debug = require('debug')('app:test/aws-mocks');
-module.exports = exports = {};
+const sinon = require('sinon');
 
-if (process.env.AWS_ACCESS_KEY_ID) {
-  debug('AWS_ACCESS_KEY_ID', process.env.AWS_ACCESS_KEY_ID);
-  return;
+const AWS = module.exports = require('aws-sdk');
+
+AWS.mock = function (module, method, fakeFunction) {
+  let proxy = createProxy(module, method);
+  if (fakeFunction && typeof proxy.callsFake === 'function') {
+    proxy.callsFake(fakeFunction);
+  }
+  return proxy;
 }
 
-const AWS = require('aws-sdk-mock');
+function createProxy(module, method) {
+  const prototype = AWS[module].prototype;
+  if (prototype[method].isSinonProxy)
+    return prototype[method];
 
+  if (process.env.AWS_ACCESS_KEY_ID)
+    return sinon.spy(prototype, method);
+
+  return sinon.stub(prototype, method);
+};
+
+/*
 const mock = exports.uploadMock = {
   ETag: '"deadbeef"',
   Location: 'https://example.com/mock.png',
@@ -32,3 +47,4 @@ AWS.mock('S3', 'upload', function (params, callback) {
   }
   callback(null, mock);
 });
+*/

@@ -2,8 +2,10 @@
 
 const app = require('../server');
 const request = require('supertest')(app);
-const { expect } = require('chai');
-const awsMocks = require('./lib/aws-mocks.js');
+const { expect, use } = require('chai');
+use(require('chai-string'));
+const path = require('path');
+const AWS = require('./lib/aws-mocks.js');
 
 const debug = require('debug')('app:test/pic-route');
 
@@ -42,6 +44,19 @@ describe('Pic Routes', function () {
     ]);
   });
 
+  beforeEach(function fakeS3Upload() {
+    this.uploadSpy = AWS.mock('S3', 'upload', (options, callback) => {
+      callback(null, {
+        Bucket: options.Bucket,
+        Key: options.Key,
+        Location: `https://example.com/${options.Key}`,
+      });
+    });
+  });
+  afterEach(function resetS3Upload() {
+    this.uploadSpy.reset();
+  });
+
   describe('POST /api/gallery/:id/pic', function () {
     it('should return 401 without Authorization', function (){
       return request
@@ -72,8 +87,8 @@ describe('Pic Routes', function () {
         .attach('image', example.pic.image)
         .expect(400);
     });
-    it('should return a pic', function () {
-      return request
+    it('should return a pic', async function () {
+      let res = await request
         .post(`/api/gallery/${this.testGallery._id}/pic`)
         .set({ Authorization: `Bearer ${this.testToken}`, })
         .field({
@@ -87,14 +102,18 @@ describe('Pic Routes', function () {
           expect(res.body.desc).to.equal(example.pic.desc);
           expect(res.body.userID).to.equal(this.testUser._id.toString());
           expect(res.body.galleryID).to.equal(this.testGallery._id.toString());
-
-          if (awsMocks.Location) {
-            expect(res.body.imageURI).to.equal(awsMocks.uploadMock.Location);
-          } else {
-            // TODO: validate imageURI
-            expect(res.body.imageURI).to.not.be.undefined;
-          }
         });
+
+      let uploadOptions = this.uploadSpy.firstCall.args[0];
+      expect(uploadOptions.ACL).to.equal('public-read');
+      expect(uploadOptions.ContentType).to.equal('image/png');
+      expect(uploadOptions.Body).to.not.be.undefined;
+
+      let expectedFileName = `${path.basename(uploadOptions.Body.path)}-${path.basename(example.pic.image)}`;
+      expect(uploadOptions.Key).to.equal(expectedFileName);
+
+      debug(res.body.imageURI);
+      expect(res.body.imageURI).to.endWith(uploadOptions.Key);
     });
   });
 });

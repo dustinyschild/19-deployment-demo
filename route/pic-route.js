@@ -44,7 +44,6 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
   });
 
   req.file.ext = path.extname(req.file.originalname);
-  debug(req.file);
 
   let s3options = {
     ACL: 'public-read',
