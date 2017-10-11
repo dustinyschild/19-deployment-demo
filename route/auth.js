@@ -1,4 +1,5 @@
 'use strict';
+const createError = require('http-errors');
 
 const jsonParser = require('body-parser').json();
 const debug = require('debug')('app:route/auth');
@@ -14,7 +15,13 @@ router.get('/api/signin', basicAuth, function (req, res, next) {
   debug('GET /api/signin');
 
   User.findOne({ username: req.auth.username })
-    .then(user => user.comparePasswordHash(req.auth.password))
+    .then(user => {
+      if (!user){
+        return Promise.reject(createError(400, 'Username does not exist'))
+      } else {
+        return user.comparePasswordHash(req.auth.password);
+      }
+    })
     .then(user => user.generateToken())
     .then(token => res.send(token))
     .catch(next);
