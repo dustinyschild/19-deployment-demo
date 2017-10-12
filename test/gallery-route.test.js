@@ -63,7 +63,7 @@ describe('Gallery Routes', function () {
         .expect(400);
     });
   });
-
+  
   describe('GET /api/gallery/:id', function () {
     describe('invalid id', function () {
       it('should return 404', function () {

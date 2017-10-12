@@ -31,7 +31,7 @@ if (!module.parent) {
     throw new Error("You forgot your .env!");
   }
   app.listen(PORT, () => {
-    debug(`Listening on ${PORT}`);
+    debug(`listening on ${PORT}`);
   });
 }
 
