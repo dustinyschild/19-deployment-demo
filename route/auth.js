@@ -1,7 +1,6 @@
 'use strict';
 const createError = require('http-errors');
 
-const createError = require('http-errors');
 const jsonParser = require('body-parser').json();
 const debug = require('debug')('app:route/auth');
 const Router = require('express').Router;
