@@ -65,7 +65,7 @@ describe('Gallery Routes', function () {
   });
 
   describe('GET /api/gallery[/:id]', function () {
-    describe.only('fetch all galleries',function(){
+    describe('fetch all galleries',function(){
       beforeEach(async function(){
         return this.testGallery = await Gallery.createGallery({name: 'test gallery',desc: 'description',userID:this.testUser})
       });
