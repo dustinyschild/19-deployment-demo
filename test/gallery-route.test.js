@@ -63,8 +63,25 @@ describe('Gallery Routes', function () {
         .expect(400);
     });
   });
-  
-  describe('GET /api/gallery/:id', function () {
+
+  describe('GET /api/gallery[/:id]', function () {
+    describe.only('fetch all galleries',function(){
+      beforeEach(async function(){
+        return this.testGallery = await Gallery.createGallery({name: 'test gallery',desc: 'description',userID:this.testUser})
+      });
+      it('should return a list of galleries',function(){
+        return request
+          .get('/api/galleries')
+          .set({Authorization: `Bearer ${this.testToken}`})
+          .expect(200)
+          .expect(res => {
+            expect(typeof res.body).to.be.equal('object');
+            expect(res.body[0].name).to.be.equal(this.testGallery.name);
+            expect(res.body[0].desc).to.be.equal(this.testGallery.desc);
+          })
+      })
+    })
+
     describe('invalid id', function () {
       it('should return 404', function () {
         return request

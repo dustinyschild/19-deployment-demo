@@ -21,6 +21,19 @@ router.post('/api/gallery', jsonParser, (req, res, next) => {
     .catch(next);
 });
 
+router.get('/api/galleries',(req,res,next) => {
+  debug('GET /api/galleries');
+  debug('__USERID__',req.user._id);
+  Gallery.find({ userID: req.user._id })
+    .then(galleries => {
+      debug(galleries);
+      res.json(galleries);
+    })
+    .catch(next);
+
+
+})
+
 router.get('/api/gallery/:id', (req, res, next) => {
   debug(`GET /api/gallery/${req.params.id}`);
 

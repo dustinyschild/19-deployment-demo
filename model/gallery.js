@@ -10,5 +10,11 @@ const gallerySchema = Schema({
   userID: { type: Schema.Types.ObjectId, required: true },
 });
 
-module.exports = mongoose.models.gallery ||
-  mongoose.model('gallery', gallerySchema);
+gallerySchema.statics.createGallery = function(body){
+  return new this({
+    ...body
+  }).save();
+}
+
+delete mongoose.models.gallery;
+module.exports = mongoose.model('gallery', gallerySchema);
