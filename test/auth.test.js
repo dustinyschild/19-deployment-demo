@@ -25,6 +25,13 @@ describe('Auth Routes', function () {
       return User.remove({});
     });
 
+    it('should not sign in if user is not found', function () {
+      return request
+        .get('/api/signin')
+        .auth('not-found', 'password')
+        .expect(401);
+    });
+
     it('should sign in', function () {
       debug('should sign in', exampleUser);
       return request
