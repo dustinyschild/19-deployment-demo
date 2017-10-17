@@ -18,7 +18,7 @@ const example = require('./lib/examples');
 
 debug(example);
 
-describe('Pic Routes', function () {
+describe.only('Pic Routes', function () {
   beforeEach(function setTestUser() {
     return User.createUser(example.user)
       .then(user => this.testUser = user)
@@ -114,6 +114,58 @@ describe('Pic Routes', function () {
 
       debug(res.body.imageURI);
       expect(res.body.imageURI).to.endWith(uploadOptions.Key);
+    });
+  });
+  describe('GET /api/pics',function(){
+    beforeEach(function(){
+      return new Gallery({
+        ...example.gallery,
+        userID: this.testUser._id.toString(),
+      }).save()
+        .then(gallery => this.testGallery2 = gallery)
+        .then(() => debug('testGallery', this.testGallery2));
+    });
+    beforeEach(function(){
+      return new Pic({
+        name: 'pic',
+        desc: 'description',
+        imageURI: 'path',
+        objectKey: 'key',
+        userID: this.testUser._id,
+        galleryID: this.testGallery._id
+      }).save()
+        .then(pic => {
+          this.testPic = pic;
+          debug(this.testPic,pic);
+        });
+    });
+    beforeEach(function(){
+      return new Pic({
+        name: 'pic2',
+        desc: 'description',
+        imageURI: 'path2',
+        objectKey: 'key2',
+        userID: this.testUser._id,
+        galleryID: this.testGallery2._id
+      }).save()
+        .then(pic => this.testPic2 = pic)
+        .then(() => debug('__Test Pic__',this.testPic2));
+    });
+    it('should return objects of pics sorted by category',function(){
+      return request.get(`/api/pics`)
+        .set({Authorization: `Bearer ${this.testToken}`})
+        .expect(200)
+        .expect(res => {
+          expect(typeof res.body).to.be.equal('object');
+          expect(res.body).to.equal({
+            [this.testGallery._id.toString()]: [
+              this.testPic
+            ],
+            [this.testGallery2._id.toString()]: [
+              this.testPic2
+            ]
+          });
+        });
     });
   });
 });

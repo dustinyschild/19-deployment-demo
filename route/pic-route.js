@@ -7,6 +7,8 @@ const debug = require('debug')('app:route/pic');
 
 const Pic = require('../model/pic');
 const Gallery = require('../model/gallery');
+const User = require('../model/user');
+const bearerAuth = require('../lib/bearer-auth-middleware');
 const router = module.exports = new Router();
 
 const dataDir = `${__dirname}/../temp`;
@@ -31,7 +33,6 @@ const s3uploadAsync = (options) => {
 
 router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => {
   debug(`POST /api/gallery/${req.params.id}`);
-
   if (!req.file) {
     return next(createError(400, 'file not found'));
   }
@@ -61,7 +62,7 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
       return s3uploadAsync(s3options);
     })
     .then(s3data => {
-      debug(s3data);
+      debug('S3DATA',s3data);
       return new Pic({
         ...req.body,
         objectKey: s3data.Key,
@@ -71,5 +72,25 @@ router.post('/api/gallery/:id/pic', upload.single('image'), (req, res, next) => 
       }).save();
     })
     .then(pic => res.json(pic))
+    .catch(next);
+});
+
+router.get('/api/pics',bearerAuth,(req,res,next) => {
+  debug(`GET /api/pics`);
+  debug(req.user);
+  Pic.find({ userID: req.user })
+    .then(pics => {
+      let res = pics.reduce((acc,pic) => {
+        if (!acc[pic.galleryID.toString()])
+          acc[pic.galleryID.toString()] = [];
+
+        acc[pic.galleryID.toString()].push(pic)
+
+        return acc;
+      },{})
+      debug('__INIT_RES_OBJ__',res);
+      return res;
+    })
+    .then(pics => res.json(pics))
     .catch(next);
 });
